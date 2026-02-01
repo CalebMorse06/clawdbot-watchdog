@@ -149,10 +149,61 @@ function createWatchdogService(opts: {
   let lastRecoverAt = 0;
   let lastStateOk: boolean | null = null;
 
-  async function checkHealth(baseLogger: any) {
-    // For v0.1.0: only verifies Rocket.Chat REST is reachable (cheap proxy for “system alive”).
-    // In v0.1.1: we should call `clawdbot/openclaw gateway health --json`.
-    return true;
+  function extractLastJsonObject(text: string): any {
+    // `clawdbot gateway health --json` may print styled doctor output *before* the JSON.
+    // We recover by parsing the last {...} block.
+    const start = text.lastIndexOf("{");
+    if (start < 0) throw new Error("no JSON object found in output");
+    const candidate = text.slice(start);
+    try {
+      return JSON.parse(candidate);
+    } catch {
+      // fallback: find first { and last }
+      const s2 = text.indexOf("{");
+      const e2 = text.lastIndexOf("}");
+      if (s2 >= 0 && e2 > s2) {
+        return JSON.parse(text.slice(s2, e2 + 1));
+      }
+      throw new Error("failed to parse JSON output");
+    }
+  }
+
+  async function runGatewayHealth(bin: string, timeoutMs: number) {
+    const { execFile } = await import("node:child_process");
+    const { promisify } = await import("node:util");
+    const execFileAsync = promisify(execFile);
+
+    const { stdout, stderr } = await execFileAsync(bin, ["gateway", "health", "--json"], {
+      timeout: timeoutMs,
+      maxBuffer: 5 * 1024 * 1024,
+    });
+
+    const combined = `${stdout ?? ""}\n${stderr ?? ""}`;
+    const json = extractLastJsonObject(combined);
+    return { bin, json };
+  }
+
+  async function checkHealth(logger: any) {
+    const timeoutMs = 10_000;
+    let lastErr: unknown = null;
+
+    for (const bin of ["clawdbot", "openclaw"]) {
+      try {
+        const result = await runGatewayHealth(bin, timeoutMs);
+        const ok = Boolean(result.json?.ok);
+        const durationMs =
+          typeof result.json?.durationMs === "number" ? result.json.durationMs : undefined;
+        return {
+          ok,
+          meta: `${bin}${durationMs !== undefined ? ` durationMs=${durationMs}` : ""}`,
+          raw: result.json,
+        };
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+
+    throw lastErr instanceof Error ? lastErr : new Error(String(lastErr ?? "health failed"));
   }
 
   return {
@@ -185,7 +236,9 @@ function createWatchdogService(opts: {
         let ok = false;
         let meta = "";
         try {
-          ok = await checkHealth(ctx.logger);
+          const health = await checkHealth(ctx.logger);
+          ok = health.ok;
+          meta = health.meta;
         } catch (err) {
           ok = false;
           meta = err instanceof Error ? err.message : String(err);
