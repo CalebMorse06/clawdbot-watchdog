@@ -14,10 +14,10 @@ This plugin is designed to keep things boring.
 
 ## Status
 
-**v0.1.0 is a scaffold** (no runtime behavior yet). The next release will add:
+**MVP (in progress)**
 - periodic health checks
-- alerts to a configured chat room
-- optional “recovery” actions (restart gateway / restart channel)
+- alerts to a configured Rocket.Chat room
+- optional auto-recovery (gateway restart)
 
 ## Install
 
@@ -27,4 +27,24 @@ npm i clawdbot-watchdog
 
 ## Configure
 
-(Coming in v0.1.1)
+Add this to your Clawdbot config:
+
+```yaml
+plugins:
+  entries:
+    watchdog:
+      enabled: true
+      config:
+        enabled: true
+        intervalSec: 60
+        failureThreshold: 3
+        cooldownSec: 600
+        alert:
+          channel: rocketchat
+          to: "#general"   # or roomId
+        recover:
+          enabled: true
+          action: gateway-restart
+```
+
+Then restart the gateway.
