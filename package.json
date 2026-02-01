@@ -1,5 +1,5 @@
 {
-  "name": "@jedi06/clawdbot-watchdog",
+  "name": "clawdbot-watchdog",
   "version": "0.1.0",
   "private": false,
   "type": "module",

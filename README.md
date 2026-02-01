@@ -1,4 +1,4 @@
-# @jedi06/clawdbot-watchdog
+# clawdbot-watchdog
 
 A tiny reliability plugin for **Clawdbot / Moltbot**.
 
@@ -22,7 +22,7 @@ This plugin is designed to keep things boring.
 ## Install
 
 ```bash
-npm i @jedi06/clawdbot-watchdog
+npm i clawdbot-watchdog
 ```
 
 ## Configure
