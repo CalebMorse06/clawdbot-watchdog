@@ -1,0 +1,10 @@
+{
+  "clawdbot": {
+    "extensions": ["./dist/index.js"],
+    "plugin": {
+      "id": "watchdog",
+      "label": "Watchdog",
+      "description": "Gateway and channel health watchdog with alerts and optional recovery."
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "@jedi06/clawdbot-watchdog",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup index.ts --format esm --out-dir dist",
+    "dev": "npm run build && node --watch --enable-source-maps dist/index.js",
+    "lint": "node -e \"console.log('no lint yet')\"",
+    "test": "node -e \"console.log('no tests yet')\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "clawdbot",
+    "moltbot",
+    "watchdog",
+    "reliability",
+    "self-hosted",
+    "rocketchat"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CalebMorse06/clawdbot-watchdog.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CalebMorse06/clawdbot-watchdog/issues"
+  },
+  "homepage": "https://github.com/CalebMorse06/clawdbot-watchdog#readme",
+  "peerDependencies": {
+    "clawdbot": "*"
+  },
+  "devDependencies": {
+    "clawdbot": "*",
+    "tsup": "^8.5.0",
+    "typescript": "^5.4.0"
+  }
+}
