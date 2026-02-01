@@ -1,0 +1,27 @@
+name: Guard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guard-no-node-modules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail if node_modules is tracked
+        run: |
+          if git ls-files | grep -q '^node_modules/'; then
+            echo "ERROR: node_modules/ is tracked. Remove it from git history and add it to .gitignore." >&2
+            exit 1
+          fi
+
+      - name: Fail if .env is tracked
+        run: |
+          if git ls-files | grep -q '^\.env$'; then
+            echo "ERROR: .env is tracked. Remove it and add to .gitignore." >&2
+            exit 1
+          fi
